@@ -19,7 +19,10 @@ class Purificatore:
     def VERSION(self):
         return "0.6.b"
         
-    def __init__(self, fileinput, fileoutput):
+    def __init__(self, fileinput, fileoutput, elaboraClitico = True,
+                                             eliminaApostrofo = True):
+        self.eliminaApostrofo = eliminaApostrofo
+        self.elaboraClitico = elaboraClitico
         self.__ElaboraDati(fileinput, fileoutput)
         
         
@@ -57,19 +60,19 @@ class Purificatore:
         except:
             pass
         
-        obj=AnalizzatoreCli()
+        obj = AnalizzatoreCli()
         try:
             with codecs.open(fileinput, 'r', 'utf-8') as fin:                
                 with codecs.open(fileoutput, 'a','utf-8') as fout:
                     for line in fin:
                         line=self.__SeparaColonne(line)
                         if self.__Is2Tag(line, u'VER',u'cli'):
-                            dati=obj.AnalizzaDati(line)   
+                            dati = obj.AnalizzaDati(line)   
                         else:
-                            dati=[line]
+                            dati = [line]
                         try:                            
                             for line_ in dati:
-                                out=str(u'\t').join(line_)+u'\n'
+                                out = str(u'\t').join(line_)+u'\n'
                                 fout.write(out)
                         except:
                             print "Errore durante la scrittura del file di output"
@@ -87,10 +90,12 @@ class Purificatore:
        
         filetmp="tempforpurificatore.tmp.txt"
         print "Processo Elabora Apostrofo in corso"
-        self.__ElaboraApostrofo(fileinput,filetmp)
+        if self.eliminaApostrofo:
+            self.__ElaboraApostrofo(fileinput,filetmp)
         
         print "Processo Elabora Clitico in corso"
-        self.__ElaboraClitico(filetmp,fileoutput)
+        if self.elaboraClitico:
+            self.__ElaboraClitico(filetmp,fileoutput)
         
         try:
             os.remove(filetmp)
